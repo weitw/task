@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '6hpoapb*m^-w5jb!9wt3gy(f!^3!%7awg&m*4azi%%1uq&tqd#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -101,6 +101,7 @@ DATABASES = {
         'NAME': 'task',
         'USER': 'root',
         'PASSWORD': os.environ['DATABASE_PASSWORD'],
+	# 'PASSWORD': 'Root*123',
         'HOST': '127.0.0.1',
         'PORT': '',
     }
@@ -146,6 +147,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'allstatic')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
     os.path.join(BASE_DIR, 'media'),

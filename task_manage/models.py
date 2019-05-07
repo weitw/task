@@ -68,5 +68,5 @@ class Groups(models.Model):
     amount = models.IntegerField(default=0)  # 班级人数
 
     class Meta:
-        db_table = "group"
+        db_table = "class"
 

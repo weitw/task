@@ -1,8 +1,9 @@
 from task_manage import views
 from django.urls import path
+# from task import settions
 
 urlpatterns = [
-    path('index/', views.Index.as_view(), name='index'),  # 主页
+    path('', views.Index.as_view(), name='index'),  # 主页
     path('login/', views.Login.as_view(), name='login'),  # 登录
     path('signup/', views.Signup.as_view(), name='signup'),  # 注册
     path('upload/', views.Upload.as_view(), name='upload'),  # 上传作业
@@ -17,4 +18,4 @@ urlpatterns = [
     path('groups_manage/', views.GroupManage.as_view(), name="groups_manage"),  # 班级管理
     path('add_group/', views.AddGroup.as_view(), name="add_group"),  # 添加班级
     path('logout/', views.Logout.as_view(), name='logout'),  # 注销
-]
+] # + static(settions.STATIC_URL, document_root=settings.STATIC_ROOT)
