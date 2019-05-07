@@ -101,7 +101,6 @@ DATABASES = {
         'NAME': 'task',
         'USER': 'root',
         'PASSWORD': os.environ['DATABASE_PASSWORD'],
-	# 'PASSWORD': 'Root*123',
         'HOST': '127.0.0.1',
         'PORT': '',
     }
