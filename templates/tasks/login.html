@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en-us" >
+<head>
+    <title>登录</title>
+    <link rel="stylesheet" type="text/css" href="/static/commons/css/base.css">
+    <link rel="stylesheet" type="text/css" href="/static/commons/css/login.css">
+    <link rel="stylesheet" type="text/css" href="/static/commons/css/responsive.css">
+</head>
+
+<body class=" login" data-admin-utc-offset="0">
+<!-- Container -->
+<div id="container">
+    <!-- Header -->
+    <div id="header">
+        <div id="branding">
+            <h1 id="site-name">
+                <span>用户登录</span>
+            </h1>
+        </div>
+    </div>
+    <!-- END Header -->
+    <!-- Content -->
+    <div id="content" class="colM">
+        <div id="content-main">
+            <form action="{% url 'login' %}" method="post" id="login-form">
+                <!--<input type="hidden" name="csrfmiddlewaretoken" value="e1p5PwbyuTQfXmxF0Kd5NWeUntNcHgRLq0r4ACMgFstTnjbnyewlRnSFvQA5BcOf">-->
+                <div class="form-row" style="position: relative;">
+                    <label class="required" for="id_username">Username:</label>
+                    <input type="text" name="username" autofocus required id="id_username" placeholder="用户名">
+                    <span style="position:absolute;right:8px;top:40px;background-image: url(/static/Commons/images/i_name.jpg);height: 16px;width: 16px;display: inline-block;"></span>
+                </div>
+                <div class="form-row">
+                    <label class="required" for="id_password">Password:</label>
+                    <input type="password" name="password" required id="id_password" placeholder="密码"><br>
+                    <span style="position:absolute;right:28px;top:183px;background-image: url(/static/Commons/images/i_pwd.jpg);height: 16px;width: 15px;display: inline-block;"></span>
+                    <span style="color: red;">{{ login_error }}</span>
+                    <!--<input type="hidden" name="next" value="/admin/">-->
+                </div>
+                <div class="form-row">
+                    <label class="required" for="id_group">Class:</label><br />
+                        <select required class="form-control m-b-15" style="color:#999999;width:350px" name="group" id="status">
+                            <option value="" style="display: none;">你所在的班级</option>
+                            {% for group in groups %}
+                                <option value="{{ group }}">{{ group }}</option>
+                            {% endfor %}
+                        </select>
+                </div>
+                <div class="submit-row">
+                    <label>&nbsp;</label>
+                    <input type="submit" value="登录">
+                </div>
+                <div>
+                    <a href="{% url 'signup' %}" title="去注册">没有账号?</a>
+                </div>
+            </form>
+        </div>
+        <br class="clear">
+        </div>
+    <!-- END Content -->
+    <div id="footer"></div>
+</div>
+<!-- END Container -->
+</body>
+</html>

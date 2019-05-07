@@ -1,0 +1,85 @@
+{% extends 'tasks/base.html' %}
+{% load static %}
+{#标题#}
+{% block title %}提交作业{% endblock %}
+
+{% block css %}
+    <link href="{% static 'assets/css/style.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+左侧导航条
+
+
+
+{#右侧定位标题#}
+{% block contenttitle %}
+    <h4 class="page-title">我的</h4>
+    <ol class="breadcrumb">
+        <li>
+            <a href="{% url 'index' %}">主页</a>
+        </li>
+        <li>
+            <a href="#">我的</a>
+        </li>
+        <li class="active">
+            提交作业
+        </li>
+    </ol>
+{% endblock %}
+
+{#主体内容#}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="white-box">
+            <h2 class="header-title">提交作业</h2>
+            <div style="color: red;">
+                <p>注意事项：</p>
+                <p>1. 文件名中务必包含个人的学号</p>
+                <p>2. 文件名中务必包含作业名，并且要严格按照首页已布置作业的相应的名字来命名</p>
+            </div>
+            <form class="form-horizontal" role="form" action="{% url 'upload' %}" enctype="multipart/form-data" method="post">
+                <input type="file" value="选择文件" name="avatar" id="avatar"/><br />
+                <button type="button" class="btn  btn-primary" onclick="FileUpload()">提交</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'assets/pages/jquery.validate.min.js' %}"></script>
+    <script src="{% static 'assets/pages/validation-custom.js' %}"></script>
+    <script>
+        $('#my_task').addClass('nav-active');
+        $('#to_upload').addClass('active');  //导航栏的样式
+
+        function FileUpload() {
+            var form_data=new FormData();
+            var file_info = $("#avatar")[0].files[0];
+            form_data.append("avatar", file_info);
+            if (file_info==undefined){
+                alert("不能上传空文件");
+                return false
+            }
+            $.ajax({
+                url:"{% url 'upload' %}",
+                type:"POST",
+                contentType:false, //加2个参数，form_data。意思是不做编码了，对文件不做处理。
+                processData:false,
+                data:form_data,  //form_data
+                success: function (arg) {
+                    arg = JSON.parse(arg);
+                    console.log(arg);
+                    if (arg['status']){
+                        alert("提交成功："+arg["success"]);
+                        window.location.href = '{% url 'uploaded' %}' //修改成功后跳转到该页
+                    }
+                    else{
+                        alert("提交失败："+arg["error"]);
+                    }
+                }
+            })
+        }
+    </script>
+{% endblock %}

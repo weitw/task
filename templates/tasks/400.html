@@ -1,0 +1,29 @@
+{% extends 'tasks/base.html' %}
+{% load static %}
+{% load myfilter %}
+{#标题#}
+{% block title %}404{% endblock %}
+
+{#左侧导航条#}
+
+
+{#右侧定位标题#}
+{% block contenttitle %}
+{% endblock %}
+
+{#主体内容#}
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="white-box">
+                <h2 class="header-title">{{ error_type }}</h2> <!--服务器出错类型-->
+                <div class="table-responsive" style="vertical-align:middle;">
+                    <p style="color: red;">{{ error }}</p>  <!--服务器出错内容-->
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+{% endblock %}

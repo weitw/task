@@ -1,0 +1,72 @@
+{% extends 'tasks/base.html' %}
+{% load static %}
+{#标题#}
+{% block title %}作业列表{% endblock %}
+
+{% block css %}
+    <link href="{% static 'assets/plugins/datatables/css/jquery.dataTables.min.css' %}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{% static 'assets/plugins/datatables/css/jquery.dataTables-custom.css' %}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{% static 'assets/plugins/sweetalert/sweetalert.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+
+{#右侧定位标题#}
+{% block contenttitle %}
+    <h4 class="page-title">作业列表</h4>
+    <ol class="breadcrumb">
+        <li>
+            <a href="{% url 'index' %}">主页</a>
+        </li>
+        <li>
+            <a href="#">班级作业</a>
+        </li>
+        <li class="active">作业列表</li>
+    </ol>
+{% endblock %}
+
+{#主体内容#}
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="white-box">
+                <h2 class="header-title">作业列表</h2>
+                <div class="table-responsive">
+                    <p></p>
+                    <table id="example" class="display table">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>作业</th>
+                            <th>提交时间</th>
+                            <th>提交次数</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for test in tests %}
+                            <tr id="{{ forloop.counter }}">  <!--保证每一行的id不同，count1,count2.....-->
+                                <th>{{ forloop.counter }}</th>
+                                <th>{{ test.filename }}</th>
+                                <th>{{ test.time }}</th>
+                                <th>{{ test.count }}</th>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'assets/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/pages/table-data.js' %}"></script>
+    <script src="{% static 'assets/plugins/sweetalert/sweet-alert.js' %}"></script>
+    <script>
+        $('#group_tests').addClass('nav-active');
+        $('#all_uploaded').addClass('active');  //导航栏样式
+    </script>
+{% endblock %}

@@ -1,0 +1,217 @@
+{% extends 'tasks/base.html' %}
+{% load static %}
+{#标题#}
+{% block title %}学生信息{% endblock %}
+{% block css %}
+    <link href="{% static 'assets/plugins/datatables/css/jquery.dataTables.min.css' %}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{% static 'assets/plugins/datatables/css/jquery.dataTables-custom.css' %}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{% static 'assets/plugins/sweetalert/sweetalert.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{#右侧定位标题#}
+{% block contenttitle %}
+    <h4 class="page-title">后台管理</h4>
+    <ol class="breadcrumb">
+        <li><a href="{% url 'index' %}">主页</a></li>
+        <li><a href="#">后台管理</a></li>
+        <li class="active">学生信息</li>
+    </ol>
+{% endblock %}
+
+{#主体内容#}
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="white-box">
+                <h2 class="header-title">学生信息</h2>
+                <div class="table-responsive" style="vertical-align:middle;">
+                    <table id="example" class="display table">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>学号</th>
+                            <th>姓名</th>
+                            {% if permission >= 5 %}
+                                <th>权限</th>
+                            {% endif %}
+                            <th>提交作业数</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for student in students  %}
+                        <tr id="{{ forloop.counter }}">
+                            <th>{{ forloop.counter }}</th>
+                            <th>{{ student.username }}</th>
+                            <th>{{ student.name }}</th>
+                            {% if student.permission < 4 %}
+                                <th>路人</th>
+                            {% elif student.permission == 4 %}
+                                <th>学生</th>
+                            {% elif student.permission == 5 %}
+                                <th>普通管理员</th>
+                            {% elif student.permission == 6 %}
+                                <th>高级管理员</th>
+                            {% elif student.permission > 6 %}
+                                <th>超级管理员</th>
+                            {% endif %}
+                            <th>{{ student.count }}</th>
+                            <th>
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal{{ forloop.counter }}">编辑</button>
+                                <div class="modal fade" id="myModal{{ forloop.counter }}">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <!-- 模态框头部 -->
+                                            <div class="modal-header">
+                                                <h4 class="modal-title text-center">修改学生信息</h4>
+                                                <br /><button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            </div>
+
+                                            <!-- 模态框主体内容 -->
+                                            <div class="modal-body">
+                                                <form action="{% url 'students' %}" method="post">
+                                                <div style="line-height: 28px;margin:0 auto;width:400px">
+
+                                                    <label style="display: none;">id：
+                                                        <input type="text" name="number" required id="number{{ forloop.counter }}" value="{{ student.id }}"></label>
+                                                    <br />  <!--该标签只是为了存取当前选中的管理员的id，以便返回返回到后台时可以用这个id找到该用户，进行资料的修改。但是该标签无法修改，也不能显示给用户看-->
+                                                    <label>学号：
+                                                        <input type="text" name="username" required id="username{{ forloop.counter }}" value="{{ student.username }}"></label>
+                                                    <br />
+                                                    <label>姓名：
+                                                        <input type="text" name="name" required id="name{{ forloop.counter }}" value="{{ student.name }}"></label>
+                                                    <br />
+
+                                                    {#超级管理员可以修改所有用户的权限值#}
+                                                    {% if permission == 7 %}
+                                                    <label>权限：
+                                                        <input type="text" name="permission" required id="permission{{ forloop.counter }}" value="{{ student.permission }}"></label>
+                                                        <p>注：4是普通学生拥有的权限值</p>
+                                                    <br />
+                                                    {% endif %}
+
+                                                    <button type="button" class="btn btn-dark" onclick="Modify({{ forloop.counter }})">确定修改</button>
+                                                </div>
+                                                </form>
+                                            </div>
+
+                                            <!-- 模态框底部 -->
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-info" data-dismiss="modal">关闭</button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-primary" onclick="DelStu({{ forloop.counter }})" id="sa-delete1">删除</button>
+
+                            </th>
+
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'assets/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/pages/table-data.js' %}"></script>
+    <script src="{% static 'assets/plugins/sweetalert/sweet-alert.js' %}"></script>
+    <script>
+        $('#manage_back').addClass('nav-active');
+        $('#stu_info').addClass('active');  //导航栏样式
+
+        function Modify(a_id) {
+            var tag = document.getElementById(a_id);
+
+            swal({
+                    title: "你确定修改吗？",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-warning",
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确认",
+                    cancelButtonText: "取消",
+                    closeOnConfirm: false,
+                    showLoaderOnConfirm: true // 显示删除的状态
+                },
+                function () {
+                    // 向后端发送删除的请求
+                    $.ajax({
+                        url: "{% url 'students' %}",
+                        async: false,  // 同步：也就是只有后端返回了数据时才显示后面的内容
+                        type: "POST",
+                        data: {
+                            "command": "Modify", //命令，告诉后端这是要修改
+                            "id": $('#number'+a_id).val(),  //用户id，后台修改谁的信息，就是依赖这个值去确定的。
+                            "name": $('#name'+a_id).val(),
+                            "username": $('#username'+a_id).val(),
+                            "permission": $('#permission'+a_id).val(),
+                        },
+                        success: function(arg) {
+                            arg = JSON.parse(arg);
+                            if (arg["status"]){
+                                //alert("修改成功");
+                                swal("修改", "你已成功修改", "success");
+                                window.location.href = '{% url 'students' %}' //修改成功后跳转到该页
+                            }
+                            else {
+                                swal("修改", arg["modify_error"], "fails");
+                                //alert("删除管理员失败")
+                            }
+                        }
+                    });
+
+                });
+            }
+
+        function DelStu(a_id) {
+            var tag = document.getElementById(a_id);
+            console.log($('#number'+a_id).val());
+            swal({
+                    title: "你确定删除吗？",
+                    text: "删除不可恢复",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-warning",
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确认",
+                    cancelButtonText: "取消",
+                    closeOnConfirm: false,
+                    showLoaderOnConfirm: true // 显示删除的状态
+                },
+                function () {
+                    // 向后端发送删除的请求
+                    $.ajax({
+                        url: "{% url 'students' %}",
+                        type: "POST",
+                        data: {
+                            "command": "Delete", //命令，告诉后端这是要修改
+                            "id": $('#number'+a_id).val(),  //用户id，后台修改谁的信息，就是依赖这个值去确定的。
+                        },
+                        success: function (arg) {
+                            arg = JSON.parse(arg);
+                            console.log("返回了：" + arg);
+                            if (arg["status"]) {
+                                tag.remove(); // 删去该行数据
+                                swal("删除", "删除成功", "success");
+                            }
+                            else {
+                                swal("删除", arg["del_error"], "fails");
+                            }
+                        }
+                    });
+                    swal("删除", "你已成功删除", "success");
+                });
+        }
+
+    </script>
+{% endblock %}

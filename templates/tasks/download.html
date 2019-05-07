@@ -1,0 +1,57 @@
+{% extends 'tasks/base.html' %}
+{% load static %}
+{% load myfilter %}
+{#标题#}
+{% block title %}作业下载{% endblock %}
+
+{#左侧导航条#}
+
+
+{#右侧定位标题#}
+{% block contenttitle %}
+    <h4 class="page-title">后台管理</h4>
+    <ol class="breadcrumb">
+        <li><a href="{% url 'index' %}">主页</a></li>
+        <li><a href="#">后台管理</a></li>
+        <li class="active">作业下载</li>
+    </ol>
+{% endblock %}
+
+{#主体内容#}
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="white-box">
+                <h2 class="header-title">作业下载</h2>
+                <div class="table-responsive" style="vertical-align:middle;">
+                    <form action="{% url 'download' %}" method="post">
+                        <div style="font-size:16px;">
+                            {% if files %}
+                            <select name="test_path">
+                                {% for file in files %}
+                                    <option value="{{ file_root }}/{{ file }}">{{ file }}</option>
+                                {% endfor %}
+                            </select>
+                            {% else %}
+                                <p>没有可下载的压缩包，请先将作业打包后再下载</p>
+                                <a href="{% url 'test_manage' %}">去打包</a>
+                            {% endif %}
+                        </div>
+                        <p></p>
+                        <input type="submit" value="下载">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'assets/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/pages/table-data.js' %}"></script>
+    <script src="{% static 'assets/plugins/sweetalert/sweet-alert.js' %}"></script>
+    <script>
+        $('#manage_back').addClass('nav-active');
+        $('#task_download').addClass('active');  //导航栏样式
+    </script>
+{% endblock %}

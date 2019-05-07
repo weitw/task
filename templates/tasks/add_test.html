@@ -1,0 +1,89 @@
+{% extends 'tasks/base.html' %}
+{% load static %}
+{#标题#}
+{% block title %}布置作业{% endblock %}
+
+{% block css %}
+    <link href="{% static 'assets/css/style.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+左侧导航条
+
+
+
+{#右侧定位标题#}
+{% block contenttitle %}
+    <h4 class="page-title">后台管理</h4>
+    <ol class="breadcrumb">
+        <li>
+            <a href="{% url 'index' %}">主页</a>
+        </li>
+        <li>
+            <a href="#">后台管理</a>
+        </li>
+        <li class="active">布置作业</li>
+    </ol>
+{% endblock %}
+
+{#主体内容#}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="white-box">
+            <h2 class="header-title">布置作业</h2>
+            <form id="example-form" class="js-validation-bootstrap form-horizontal" action="{% url 'add_task' %}"
+                  method="post">
+
+                <div class="clearfix">
+                    <label class="col-md-2  control-label" for="name">作业 *</label>
+                    <div class="col-md-8">
+                        <input id="name" required name="name" type="text" class="required form-control" placeholder="请输入作业">
+                    </div>
+                    {% if status == 0 %}
+                    <p style="color: red;">{{ add_error }}</p>  <!--用户名被占用时显示-->
+                    {% endif %}
+                </div><br />
+
+                <div class="clearfix">
+                    <label for="deadline" class="col-md-2  control-label">截止时间 *</label>
+                    <div class="col-md-8">
+                        <input id="deadline" required name="deadline" type="text" class="required form-control"
+                               placeholder="请输入截止时间">
+                    </div>
+                </div><br />
+
+                <div class="clearfix">
+                    <label class="col-md-2 control-label" for="details">作业补充(可不填)</label>
+                    <div class="col-md-8">
+                        <textarea name="details" class="form-control" rows="5"></textarea>
+                    </div>
+                </div><br />
+
+                <div class="clearfix">
+                    <div class="col-md-8 col-md-offset-2">
+                        <button class="btn  btn-primary" type="submit" onclick="Show()" >确认</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+{#    <script src="{% static 'assets/pages/jquery.validate.min.js' %}"></script>#}
+{#    <script src="{% static 'assets/pages/validation-custom.js' %}"></script>#}
+    <script>
+        $('#manage_back').addClass('nav-active');
+        $('#add_task').addClass('active');  //导航栏的样式
+
+        function Show() {
+            if ($('#name').val() && $('#deadline').val()){
+               console.log("允许用户提交");
+            }
+            else {
+                alert("作业名或截止时间为必填项");
+            }
+        }
+    </script>
+{% endblock %}

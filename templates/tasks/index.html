@@ -1,0 +1,68 @@
+{% extends 'tasks/base.html' %}
+{% load static %}
+
+{#标题#}
+{% block title %}主页{% endblock %}
+{% block css %}
+    <!--Begin  Page Level  CSS -->
+    <link href="{% static '/assets/plugins/morris-chart/morris.css' %}" rel="stylesheet">
+    <link href="{% static '/assets/plugins/jquery-ui/jquery-ui.min.css' %}" rel="stylesheet"/>
+    <!--End  Page Level  CSS -->
+    <script>
+        {% if add_error %}
+            alert({{ add_error }});
+        {% elif add_success %}
+            alert({{ add_success }});
+        {% endif %}
+    </script>
+{% endblock %}
+
+
+{#右侧定位标题#}
+{% block contenttitle %}
+    <h4 class="page-title">主页</h4>
+    <ol class="breadcrumb">
+
+        <li>
+            <a href="{% url 'index' %}">主页</a>
+        </li>
+        <li class="active">
+            主页
+        </li>
+    </ol>
+{% endblock %}
+
+{#主体内容#}
+{% block content %}
+    <div class="col-md-12">
+        <div class="white-box">
+            <h2 class="header-title " style="text-align: center;">
+            </h2>
+            <blockquote>
+                <p>已布置的作业</p>
+                {% for test in tests %}
+                    <div style="font-size: 15px;margin: 11px 33px;color:#423c3c">
+                        <p style="background: #c5b5b5;">作业{{ forloop.counter }}：{{ test.name }}</p>
+                        <p>截止时间：{{ test.deadline }}</p>
+                        {% if test.details %}
+                            <p>补充：{{ test.details }}</p>
+                        {% else %}
+                            <p>补充：无</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <p></p>
+            </blockquote>
+            <blockquote>
+                <p>具体操作</p>
+                <small>请选择左边菜单栏进行操作</small>
+            </blockquote>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+
+
+{% endblock %}
+

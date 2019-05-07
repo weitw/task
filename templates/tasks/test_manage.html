@@ -1,0 +1,204 @@
+{% extends 'tasks/base.html' %}
+{% load static %}
+{% load myfilter %}
+{#标题#}
+{% block title %}作业管理{% endblock %}
+
+{% block css %}
+    <link href="{% static 'assets/plugins/datatables/css/jquery.dataTables.min.css' %}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{% static 'assets/plugins/datatables/css/jquery.dataTables-custom.css' %}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{% static 'assets/plugins/sweetalert/sweetalert.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{#左侧导航条#}
+
+
+{#右侧定位标题#}
+{% block contenttitle %}
+    <h4 class="page-title">后台管理</h4>
+    <ol class="breadcrumb">
+        <li><a href="{% url 'index' %}">主页</a></li>
+        <li><a href="#">后台管理</a></li>
+        <li class="active">作业管理</li>
+    </ol>
+{% endblock %}
+
+{#主体内容#}
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="white-box">
+                <h2 class="header-title">作业管理</h2>
+                <div class="table-responsive" style="vertical-align:middle;">
+                    <table id="example" class="display table">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>编号</th>
+                            <th>作业名</th>
+                            <th>发布时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for test in tests  %}
+                        <tr id="{{ forloop.counter }}">
+                            <th>{{ forloop.counter }}</th>
+                            <th>{{ test.id }}</th>
+                            <th>{{ test.name }}</th>
+                            <th>{{ test.release_time }}</th>
+                            {% if test.is_download %}
+                            <th style="color: green;">已下载</th>
+                            {% else %}
+                            <th style="color: red;">未下载</th>
+                            {% endif %}
+                            <th>
+
+                                <!--编辑功能所在模态框开始-->
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal{{ forloop.counter }}"
+                                onclick="Show({{ forloop.counter }})">查看</button>
+
+                                <div class="modal fade" id="myModal{{ forloop.counter }}">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <!-- 模态框头部 -->
+                                            <div class="modal-header">
+                                                <h4 class="modal-title text-center">头在这儿</h4>
+                                                <br /><button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            </div>
+
+                                            <!-- 模态框主体内容 -->
+                                            <div class="modal-body">
+                                                <div style="line-height: 28px;margin:0 auto;width:400px">
+{#                                                    {{ stu_files | cut:forloop.counter }}#}
+                                                    {% for files in stu_files %}
+                                                        <p style="color: #c5b5b5;">{{ forloop.counter }}. "{{ test.name }}"作业详细信息</p>
+                                                        {% if files %}
+                                                            {% for f in files %}
+                                                                    <p>{{ f }}</p>
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            <p>没有提交任何作业</p>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+
+                                            <!-- 模态框底部 -->
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-info" data-dismiss="modal">关闭</button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--编辑功能模态框功能结束-->
+                                <!--可用下方script里注释的ajax的方法，data里是字典型数据-->
+                                <button class="btn btn-primary" onclick="PackTest('{{ forloop.counter }}')"  id="sa-delete1">打包</button>
+{#                                <button class="btn btn-primary" onclick="Download('{{ forloop.counter }}')"  id="sa-delete1">下载</button>#}
+                                <button class="btn btn-primary" onclick="Delete('{{ forloop.counter }}')"  id="sa-delete1">删除</button>
+                            </th>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'assets/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/pages/table-data.js' %}"></script>
+    <script src="{% static 'assets/plugins/sweetalert/sweet-alert.js' %}"></script>
+    <script>
+        $('#manage_back').addClass('nav-active');
+        $('#task_manage').addClass('active');  //导航栏样式
+
+        function Show(index) {
+
+        }
+
+        function PackTest(a_id) {
+            var test_id = document.getElementById(a_id).children[1].textContent;  //获得要删除的作业对应的id,是一个字符串
+            console.log(test_id);
+            swal({
+                    title: "你确定打包该作业吗？",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-warning",
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确认",
+                    cancelButtonText: "取消",
+                    closeOnConfirm: false,
+                    showLoaderOnConfirm: true // 显示删除的状态
+                },
+                function () {
+                    // 向后端发送删除的请求
+                    $.ajax({
+                        url: "{% url 'test_manage' %}",
+                        type: "POST",
+                        data: {
+                            "command": "Pack",
+                            "test_id": test_id,  //要下载的作业id
+                        },
+                        success: function(arg) {
+                            arg = JSON.parse(arg);
+                            if (arg["status"]){
+                                swal("成功", arg["success"], "success");
+                                window.location.href = '{% url 'test_manage' %}' //修改成功后跳转到该页
+                            }
+                            else {
+                                swal("失败", arg["error"], "fails");
+                            }
+                        }
+                    });
+                });
+        }
+
+        function Delete(a_id) {
+            var tag = document.getElementById(a_id);
+            var test_id = document.getElementById(a_id).children[1].textContent;  //获得要删除的作业对应的id,是一个字符串
+            console.log(test_id);
+            swal({
+                    title: "你确定删除该作业吗？",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-warning",
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确认",
+                    cancelButtonText: "取消",
+                    closeOnConfirm: false,
+                    showLoaderOnConfirm: true // 显示删除的状态
+                },
+                function () {
+                    // 向后端发送删除的请求
+                    $.ajax({
+                        url: "{% url 'test_manage' %}",
+                        type: "POST",
+                        data: {
+                            "command": "Delete",
+                            "test_id": test_id,  //要下载的作业id
+                        },
+                        success: function(arg) {
+                            arg = JSON.parse(arg);
+                            if (arg["status"]){
+                                tag.remove();  //移除这一行
+                                swal("删除", "删除成功", "success");
+                                window.location.href='{% url 'test_manage' %}' //刷新该页
+                            }
+                            else {
+                                swal("删除", arg["error"], "fails");
+                            }
+                        }
+                    });
+                }
+            );
+        }
+    </script>
+{% endblock %}

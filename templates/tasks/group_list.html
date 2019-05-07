@@ -1,0 +1,200 @@
+{% extends 'tasks/base.html' %}
+{% load static %}
+{#标题#}
+{% block title %}班级列表{% endblock %}
+
+{% block css %}
+    <link href="{% static 'assets/plugins/datatables/css/jquery.dataTables.min.css' %}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{% static 'assets/plugins/datatables/css/jquery.dataTables-custom.css' %}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{% static 'assets/plugins/sweetalert/sweetalert.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+
+{#右侧定位标题#}
+{% block contenttitle %}
+    <h4 class="page-title">班级管理</h4>
+    <ol class="breadcrumb">
+        <li>
+            <a href="{% url 'index' %}">主页</a>
+        </li>
+        <li>
+            <a href="#">班级列表</a>
+        </li>
+        <li class="active">班级管理</li>
+    </ol>
+{% endblock %}
+
+{#主体内容#}
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="white-box">
+                <h2 class="header-title">班级列表</h2>
+                <div class="table-responsive">
+                    <a class="btn btn-primary" href="{% url 'add_group' %}">添加</a>
+                    <p></p>
+                    <table id="example" class="display table">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>班级</th>
+                            <th>学生人数</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for group in groups %}
+                            <tr id="{{ forloop.counter }}">  <!--保证每一行的id不同，count1,count2.....-->
+                                <th>{{ forloop.counter }}</th>
+                                <th>{{ group.name }}</th>
+                                <th>{{ group.amount }}</th>
+                                <th>
+                                    <!--编辑功能所在模态框开始-->
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal{{ forloop.counter }}">编辑</button>
+
+                                    <div class="modal fade" id="myModal{{ forloop.counter }}">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <!-- 模态框头部 -->
+                                                <div class="modal-header" style="height: 60px">
+                                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                    <p class="modal-title text-center" style="font-size: 20px;">修改班级信息</p>
+                                                </div>
+
+                                                <!-- 模态框主体内容 -->
+                                                <div class="modal-body">
+                                                    <form action="{% url 'groups_manage' %}" method="post">
+                                                        <div style="line-height: 28px;margin:0 auto;width:400px">
+                                                            <input style="display: none;" id="group_id{{ forloop.counter}}" value="{{ group.id }}">
+                                                            <label>班级：
+                                                                <input type="text" required name="name" id="name{{ forloop.counter }}" value="{{ group.name }}"></label>
+                                                            <br>
+                                                            <label>人数：
+                                                                <input type="text" required name="amount" id="amount{{ forloop.counter }}" value="{{ group.amount }}"></label>
+                                                            <br>
+                                                            <button type="button" class="btn btn-dark" onclick="Modify({{ forloop.counter }})">确定修改</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+
+                                                <!-- 模态框底部 -->
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-info" data-dismiss="modal">关闭</button>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--编辑功能模态框功能结束-->
+                                    <!--可用下方script里注释的ajax的方法，data里是字典型数据-->
+                                    <button class="btn btn-primary" onclick="DelGroup({{ forloop.counter }})">删除</button>
+                                </th>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'assets/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/pages/table-data.js' %}"></script>
+    <script src="{% static 'assets/plugins/sweetalert/sweet-alert.js' %}"></script>
+    <script>
+        $('#group_manage').addClass('nav-active');
+        $('#group_list').addClass('active');  //导航栏样式
+
+        function Modify(a_id) {
+            swal({
+                    title: "你确定修改吗？",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-warning",
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确认",
+                    cancelButtonText: "取消",
+                    closeOnConfirm: false,
+                    showLoaderOnConfirm: true // 显示删除的状态
+                },
+                function () {
+                    // 向后端发送删除的请求
+                    $.ajax({
+                        url: "{% url 'groups_manage' %}",
+                        async: false,  // 同步：也就是只有后端返回了数据时才显示后面的内容
+                        type: "POST",
+                        data: {
+                            "command": "Modify",
+                            "name": $('#name'+a_id).val(),
+                            "amount": $('#amount'+a_id).val(),
+                            "group_id": $('#group_id'+a_id).val(),
+                        },
+                        success: function(arg) {
+                            arg = JSON.parse(arg);
+                            if (arg["status"]){
+                                //alert("修改成功");
+                                swal("修改", "你已成功修改", "success");
+                                window.location.href = '{% url 'groups_manage' %}' //修改成功后跳转到该页
+                            }
+                            else {
+                                swal("修改", arg["modify_error"], "fails");
+                                //alert("删除管理员失败")
+                            }
+                        }
+                    });
+
+                });
+            }
+
+        function DelGroup(a_id) {
+            //删除班级
+            var tag = document.getElementById(a_id);
+
+            swal({
+                    title: "你确定删除吗？",
+                    text: "删除后，该班级下的所有作业都将被删除，请谨慎执行此操作",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-warning",
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确认",
+                    cancelButtonText: "取消",
+                    closeOnConfirm: false,
+                    showLoaderOnConfirm: true // 显示删除的状态
+                },
+                function () {
+                    // 向后端发送删除的请求
+                    $.ajax({
+                        url: "{% url 'groups_manage' %}",
+                        type: "POST",
+                        data: {
+                            "command": "Delete",
+                            "group_id": $('#group_id'+a_id).val(),
+                        },
+                        fails: function(arg) {
+                            arg = JSON.parse(arg);
+                            swal("删除", arg["del_error"], "fails");
+                        },
+                        success: function(arg) {
+                            arg = JSON.parse(arg);
+                            if (arg["status"]){
+                                tag.remove(); // 删去该行数据
+                                swal("删除", "你已成功删除", "success");
+                            }
+                            else {
+                                swal("删除", arg["del_error"], "fails");
+                            }
+                        }
+                    });
+
+                });
+            }
+    </script>
+
+{% endblock %}
