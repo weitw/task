@@ -1,6 +1,3 @@
 *.js linguist-language=Django2 
 *.css linguist-language=Django2
 *.html linguist-language=Django2 
-*.py linguist-language=Django2
-*.* linguist-language=Django2
-* linguist-language=Django2
