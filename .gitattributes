@@ -1,0 +1,3 @@
+*.js linguist-language=Django2 
+*.css linguist-language=Django2
+*.html linguist-language=Django2 
